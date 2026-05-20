@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>H2O Shop</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600&family=Space+Grotesk:wght@500;600&display=swap');
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--red:#c0000c;--red-dk:#8a0008;--red-lt:#fce8e8;--white:#fff;--g1:#f5f5f5;--g2:#e0e0e0;--tx:#1a1a1a;--mu:#888;--r:14px;--rs:8px}
+body{font-family:'Noto Sans Thai','Space Grotesk',sans-serif;background:var(--red-lt);color:var(--tx);min-height:100vh}
+/* NAV */
+.nav{background:var(--red);padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(192,0,12,.3)}
+.nav-logo{color:#fff;font-size:22px;font-weight:600;letter-spacing:2px}
+.nav-cart{display:flex;align-items:center;gap:8px;border:1.5px solid rgba(255,255,255,.5);border-radius:999px;padding:6px 16px;color:#fff;font-size:13px;cursor:pointer;background:none;transition:.15s;font-family:inherit}
+.nav-cart:hover{background:rgba(255,255,255,.12)}
+.badge{background:#fff;color:var(--red);border-radius:50%;width:22px;height:22px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;transition:.2s}
+.badge.bump{transform:scale(1.4)}
+/* PAGE */
+.page{display:none}.page.active{display:block}
+/* SKELETON */
+.skeleton{background:linear-gradient(90deg,#ececec 25%,#ddd 50%,#ececec 75%);background-size:200% 100%;animation:sh 1.2s infinite;border-radius:8px}
+@keyframes sh{0%{background-position:200% 0}100%{background-position:-200% 0}}
+.sk-card{background:#fff;border-radius:var(--r);overflow:hidden;border:.5px solid rgba(0,0,0,.07)}
+.sk-img{height:200px}.sk-ln{height:13px;margin:14px 16px 8px}.sk-ln.s{width:55%;margin-bottom:18px}
+/* REFRESH */
+.rbar{display:flex;align-items:center;justify-content:space-between;padding:12px 24px 0;font-size:12px;color:var(--mu)}
+.rbtn{border:1px solid var(--g2);border-radius:999px;padding:4px 12px;font-size:12px;cursor:pointer;background:#fff;font-family:inherit;display:flex;align-items:center;gap:5px;transition:.15s}
+.rbtn:hover{border-color:var(--red);color:var(--red)}
+.rbtn:disabled{opacity:.5;cursor:default}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinning{animation:spin .8s linear infinite;display:inline-block}
+/* GRID */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:18px;padding:18px 24px 40px}
+.card{background:#fff;border-radius:var(--r);overflow:hidden;border:.5px solid rgba(0,0,0,.07);transition:transform .18s,box-shadow .18s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 28px rgba(192,0,12,.1)}
+.card.oos{opacity:.65}
+.cimg{width:100%;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.cbody{padding:16px}
+.pname{font-size:15px;font-weight:600;margin-bottom:2px}
+.psub{font-size:12px;color:var(--mu);margin-bottom:8px}
+.pdet{font-size:12px;color:#555;line-height:1.7;margin-bottom:10px}
+.pprice{font-size:20px;font-weight:600;color:var(--red);margin-bottom:10px}
+/* STOCK BADGE */
+.stag{display:inline-block;font-size:11px;font-weight:500;padding:3px 10px;border-radius:999px;margin-bottom:10px}
+.s-ok{background:#e8f5e9;color:#2d7a2d}
+.s-low{background:#fff8e1;color:#b45309}
+.s-out{background:#fce8e8;color:var(--red)}
+/* VARIANTS */
+.vars{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
+.vbtn{border:1.5px solid var(--g2);border-radius:999px;padding:4px 13px;font-size:12px;cursor:pointer;background:#fff;transition:.15s;font-family:inherit;color:var(--tx)}
+.vbtn.active,.vbtn:hover:not(:disabled){border-color:var(--red);color:var(--red)}
+.vbtn:disabled{opacity:.45;cursor:not-allowed;text-decoration:line-through}
+/* QTY */
+.qrow{display:flex;align-items:center;margin-bottom:8px}
+.qlbl{font-size:13px;color:#555;margin-right:12px}
+.qctl{display:flex;align-items:center;border:1.5px solid var(--g2);border-radius:999px;overflow:hidden}
+.qb{width:32px;height:32px;border:none;background:#fff;font-size:18px;cursor:pointer;font-family:inherit;transition:.12s}
+.qb:hover{background:var(--g1)}
+.qn{width:36px;text-align:center;font-size:14px;font-weight:600;background:#fff;border:none;font-family:inherit}
+/* BUTTONS */
+.add-btn{width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s;font-family:inherit}
+.add-btn:hover{background:var(--red-dk)}
+.oos-btn{width:100%;background:#e0e0e0;color:#999;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:500;cursor:not-allowed;display:flex;align-items:center;justify-content:center;gap:8px;font-family:inherit}
+/* PAGE WRAP */
+.pw{max-width:680px;margin:0 auto;padding:28px 20px}
+.ptitle{font-size:22px;font-weight:600;margin-bottom:20px}
+.back{background:none;border:1.5px solid var(--g2);border-radius:10px;padding:9px 16px;font-size:13px;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;gap:6px;font-family:inherit;color:var(--tx);transition:.15s}
+.back:hover{border-color:var(--red);color:var(--red)}
+/* CART ITEMS */
+.cempty{text-align:center;padding:60px 20px;color:var(--mu)}
+.ci{background:#fff;border-radius:var(--r);padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;gap:14px;border:.5px solid rgba(0,0,0,.06)}
+.ci-info{flex:1}.ci-name{font-size:14px;font-weight:600}.ci-sub{font-size:12px;color:var(--mu);margin-top:2px}
+.ci-price{font-size:14px;font-weight:600;color:var(--red);white-space:nowrap}
+.ci-rm{background:none;border:none;color:var(--mu);cursor:pointer;font-size:18px;padding:4px;border-radius:6px;transition:.15s}
+.ci-rm:hover{color:var(--red)}
+.ci-qty{display:flex;align-items:center;border:1.5px solid var(--g2);border-radius:999px;overflow:hidden;margin-top:6px;width:fit-content}
+/* SUMMARY */
+.csumm{background:#fff;border-radius:var(--r);padding:16px;margin-top:4px;border:.5px solid rgba(0,0,0,.06)}
+.srow{display:flex;justify-content:space-between;font-size:14px;margin-bottom:8px;color:#555}
+.stotal{display:flex;justify-content:space-between;font-size:18px;font-weight:600;padding-top:12px;border-top:1px solid var(--g2)}
+.stotal span:last-child{color:var(--red)}
+.cobtn{width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:13px;font-size:15px;font-weight:500;cursor:pointer;margin-top:14px;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.cobtn:hover{background:var(--red-dk)}
+/* CHECKOUT */
+.sc{background:#fff;border-radius:var(--r);padding:18px;margin-bottom:14px;border:.5px solid rgba(0,0,0,.06)}
+.stitle{font-size:14px;font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.stitle span{background:var(--red);color:#fff;width:22px;height:22px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:11px;flex-shrink:0}
+.field{margin-bottom:14px}
+.field label{display:block;font-size:13px;color:#555;margin-bottom:5px}
+.field input,.field textarea{width:100%;border:1.5px solid var(--g2);border-radius:var(--rs);padding:10px 12px;font-size:14px;background:#fff;outline:none;transition:.15s;font-family:inherit;color:var(--tx)}
+.field input:focus,.field textarea:focus{border-color:var(--red)}
+.field textarea{min-height:70px;resize:vertical}
+.req{color:var(--red)}
+.binfo{background:var(--red-lt);border-radius:var(--rs);padding:13px 16px;font-size:13px;line-height:1.8;border:1px solid rgba(192,0,12,.15)}
+.binfo strong{color:var(--red)}
+.slipz{border:2px dashed var(--g2);border-radius:var(--rs);padding:22px;text-align:center;cursor:pointer;transition:.15s;position:relative}
+.slipz:hover,.slipz.has{border-color:var(--red)}
+.slipz input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.slip-img{max-width:100%;max-height:180px;border-radius:8px;margin-top:10px;display:none}
+.obtn{width:100%;background:var(--red);color:#fff;border:none;border-radius:10px;padding:14px;font-size:15px;font-weight:600;cursor:pointer;margin-top:6px;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:8px;transition:.15s}
+.obtn:hover{background:var(--red-dk)}
+.obtn:disabled{background:var(--mu);cursor:not-allowed}
+/* SUCCESS */
+.succwrap{text-align:center;padding:48px 20px}
+.succicon{width:72px;height:72px;background:#e8f5e9;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-size:32px}
+.oidbox{background:var(--red-lt);border-radius:var(--rs);padding:12px 22px;display:inline-block;font-size:18px;font-weight:600;color:var(--red);margin:16px 0}
+.bhome{background:var(--red);color:#fff;border:none;border-radius:10px;padding:12px 28px;font-size:14px;font-weight:500;cursor:pointer;font-family:inherit;transition:.15s;margin-top:8px}
+.bhome:hover{background:var(--red-dk)}
+/* MISC */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;opacity:0;transition:.3s;z-index:999;white-space:nowrap;pointer-events:none}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+.overlay.show{display:flex}
+.spinner{width:44px;height:44px;border:3px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite}
+.overlay p{color:#fff;font-size:14px}
+footer{background:var(--red);padding:22px;text-align:center}
+.flbl{font-size:11px;font-weight:500;letter-spacing:2px;color:rgba(255,255,255,.6);margin-bottom:8px}
+.flinks{display:flex;justify-content:center;gap:24px;flex-wrap:wrap}
+.flink{color:rgba(255,255,255,.85);font-size:13px;text-decoration:none}
+</style>
+</head>
+<body>
+
+<nav class="nav">
+  <span class="nav-logo">H2O</span>
+  <button class="nav-cart" onclick="showCart()">
+    🛒 ตะกร้า <span class="badge" id="badge">0</span>
+  </button>
+</nav>
+
+<!-- SHOP -->
+<div class="page active" id="page-shop">
+  <div class="rbar">
+    <span id="last-upd">กำลังโหลดสต็อก...</span>
+    <button class="rbtn" id="rbtn" onclick="loadStock()">
+      <span id="ricon">↻</span> รีเฟรชสต็อก
+    </button>
+  </div>
+  <div class="grid" id="pgrid">
+    <div class="sk-card"><div class="skeleton sk-img"></div><div class="skeleton sk-ln"></div><div class="skeleton sk-ln s"></div></div>
+    <div class="sk-card"><div class="skeleton sk-img"></div><div class="skeleton sk-ln"></div><div class="skeleton sk-ln s"></div></div>
+    <div class="sk-card"><div class="skeleton sk-img"></div><div class="skeleton sk-ln"></div><div class="skeleton sk-ln s"></div></div>
+    <div class="sk-card"><div class="skeleton sk-img"></div><div class="skeleton sk-ln"></div><div class="skeleton sk-ln s"></div></div>
+  </div>
+  <footer>
+    <p class="flbl">CONTACT</p>
+    <div class="flinks">
+      <a class="flink" href="mailto:h2o-kun@hotmail.com">✉️ h2o-kun@hotmail.com</a>
+      <a class="flink" href="https://x.com/H2O_kun" target="_blank">𝕏 H2O_kun</a>
+    </div>
+  </footer>
+</div>
+
+<!-- CART -->
+<div class="page" id="page-cart">
+  <div class="pw">
+    <button class="back" onclick="showPage('shop')">← กลับร้านค้า</button>
+    <h1 class="ptitle">🛒 ตะกร้าสินค้า</h1>
+    <div id="cart-list"></div>
+    <div id="cart-summ"></div>
+  </div>
+</div>
+
+<!-- CHECKOUT -->
+<div class="page" id="page-checkout">
+  <div class="pw">
+    <button class="back" onclick="showCart()">← กลับตะกร้า</button>
+    <h1 class="ptitle">📋 ข้อมูลการสั่งซื้อ</h1>
+    <div class="sc">
+      <div class="stitle"><span>1</span> ข้อมูลผู้สั่งซื้อ</div>
+      <div class="field"><label>ชื่อ-นามสกุล <span class="req">*</span></label><input id="fn" type="text" placeholder="กรุณากรอกชื่อ-นามสกุล"></div>
+      <div class="field"><label>อีเมล <span class="req">*</span></label><input id="fe" type="email" placeholder="email@example.com"></div>
+      <div class="field"><label>เบอร์โทร</label><input id="fp" type="tel" placeholder="0xx-xxx-xxxx"></div>
+    </div>
+    <div class="sc">
+      <div class="stitle"><span>2</span> ที่อยู่จัดส่ง</div>
+      <div class="field"><label>ที่อยู่จัดส่ง <span class="req">*</span></label><textarea id="fa" placeholder="บ้านเลขที่ / ถนน / ตำบล / อำเภอ / จังหวัด / รหัสไปรษณีย์"></textarea></div>
+    </div>
+    <div class="sc">
+      <div class="stitle"><span>3</span> ชำระเงิน — โอนเงิน</div>
+      <div class="binfo">
+        ธนาคาร: <strong>ไทยพาณิชย์ (SCB)</strong><br>
+        เลขบัญชี: <strong>346-208466-4</strong><br>
+        ชื่อบัญชี: <strong>นาง ธนวัลย์ บุณยวัฒนสิทธิ์</strong><br>
+        ยอดโอน: <strong id="payamt" style="font-size:16px">฿0</strong>
+      </div>
+    </div>
+    <div class="sc">
+      <div class="stitle"><span>4</span> อัปโหลดสลิป <span class="req">*</span></div>
+      <div class="slipz" id="slipz">
+        <input type="file" id="slipinput" accept="image/*" onchange="handleSlip(this)">
+        <div id="sliplbl">📎 แตะหรือคลิกเพื่อเลือกรูปสลิป</div>
+        <img id="slipimg" class="slip-img" alt="สลิป">
+      </div>
+    </div>
+    <div class="sc">
+      <div class="stitle"><span>5</span> หมายเหตุ (ถ้ามี)</div>
+      <div class="field"><textarea id="fnote" placeholder="เช่น ขอห่อของขวัญ, ต้องการใบเสร็จ"></textarea></div>
+    </div>
+    <div class="sc">
+      <div class="stitle"><span>✓</span> สรุปรายการ</div>
+      <div id="co-summ"></div>
+    </div>
+    <button class="obtn" id="obtn" onclick="submitOrder()">✅ ยืนยันการสั่งซื้อ</button>
+  </div>
+</div>
+
+<!-- SUCCESS -->
+<div class="page" id="page-success">
+  <div class="pw">
+    <div class="succwrap">
+      <div class="succicon">✅</div>
+      <h2 style="font-size:22px;font-weight:600;margin-bottom:8px">สั่งซื้อสำเร็จ!</h2>
+      <p style="font-size:14px;color:var(--mu);line-height:1.7">ขอบคุณที่สั่งสินค้ากับเราค่ะ 🙏<br>ทางร้านจะติดต่อกลับเพื่อยืนยันและแจ้งเลขพัสดุค่ะ</p>
+      <div class="oidbox" id="soid"></div>
+      <p style="font-size:13px;color:var(--mu)" id="semail"></p><br>
+      <button class="bhome" onclick="backHome()">🏠 กลับหน้าร้านค้า</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="overlay"><div class="spinner"></div><p id="ovmsg">กำลังโหลด...</p></div>
+<div class="toast" id="toast"></div>
+
+<script>
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxUgswkD8xQpsZLcy3vfK_OCWZ4Q9GLrWSwdbv7d1b6h3I7tB7W4DA9Qjf9xDnfn-M0ug/exec";
+
+const CATALOG = [
+  { id:"doujin-01", name:"หู ทาง เขา", sub:"100M Unofficial Fanbook 01 by H2O",
+    detail:"คู่ : Komiya x Togashi\nขนาดรูปเล่ม : A5 · 36 หน้า\nแนวเรื่อง : คอมเมดี้ · เรท : R15",
+    price:160, variants:[], bg:"#1a1a1a",
+    img:`<div style="color:#fff;text-align:center;padding:20px"><div style="font-size:22px;font-weight:600;letter-spacing:2px">หู ทาง เขา</div><div style="font-size:11px;opacity:.5;margin-top:4px">100M Unofficial Fanbook 01</div></div>` },
+  { id:"postcard", name:"Postcard", sub:"Postcard 4×6 นิ้ว เคลือบกากเพชร",
+    detail:"", price:35, variants:["Sand meme","Suit"], bg:"#1a3bbf",
+    img:`<div style="background:#f5e6c8;width:82%;height:75%;border-radius:4px;transform:rotate(-4deg);display:flex;align-items:center;justify-content:center"><span style="font-size:26px;font-weight:600;color:#1a3bbf;letter-spacing:3px;font-style:italic">SUIT</span></div>` },
+  { id:"keychain", name:"พวงกุญแจอะคริลิค", sub:"ขนาด 6 cm เคลือบเงา",
+    detail:"", price:120, variants:["Komiya","Togashi"], bg:"#fff7ed",
+    img:`<div style="display:flex;gap:12px"><div style="width:60px;height:60px;border-radius:50%;background:#fce8e8;border:2px solid #f4a0a0;display:flex;align-items:center;justify-content:center;font-size:24px">🔑</div><div style="width:60px;height:60px;border-radius:50%;background:#e8eeff;border:2px solid #aab4f0;display:flex;align-items:center;justify-content:center;font-size:24px">🔑</div></div>` },
+  { id:"sticker", name:"สติ๊กเกอร์ชุด", sub:"สติ๊กเกอร์ไดคัทกันน้ำ 6 แบบ/ชุด",
+    detail:"", price:60, variants:[], bg:"#f0fdf4",
+    img:`<div style="display:flex;flex-wrap:wrap;gap:8px;padding:14px;justify-content:center">${["★","♥","✦","◆","☆","♡"].map(s=>`<div style="background:#fff;border-radius:50%;width:48px;height:48px;display:flex;align-items:center;justify-content:center;font-size:20px;border:2px solid #e0e0e0">${s}</div>`).join("")}</div>` }
+];
+
+let stock={}, cart=[], selV={}, qty={}, slip64="";
+
+/* ── STOCK ── */
+async function loadStock(silent=false){
+  if(!silent){ setRefreshing(true); }
+  try{
+    const r=await fetch(SCRIPT_URL+"?action=getStock");
+    const j=await r.json();
+    if(j.stock) stock=j.stock;
+    const t=new Date().toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('last-upd').textContent="อัปเดตล่าสุด "+t;
+  }catch(e){
+    document.getElementById('last-upd').textContent="ไม่สามารถโหลดสต็อกได้ — ลองใหม่อีกครั้ง";
+  }finally{
+    if(!silent) setRefreshing(false);
+    renderProducts();
+  }
+}
+function setRefreshing(on){
+  document.getElementById('ricon').classList.toggle('spinning',on);
+  document.getElementById('rbtn').disabled=on;
+}
+function getStock(pid,v){
+  const k=v?pid+"-"+v:pid;
+  return stock[k]??99;
+}
+function stag(n){
+  if(n<=0) return `<span class="stag s-out">สินค้าหมด</span>`;
+  if(n<=5) return `<span class="stag s-low">⚠ เหลือ ${n} ชิ้น</span>`;
+  return `<span class="stag s-ok">เหลือ ${n} ชิ้น</span>`;
+}
+
+/* ── RENDER ── */
+function renderProducts(){
+  const g=document.getElementById('pgrid');
+  CATALOG.forEach(p=>{ if(!selV[p.id]) selV[p.id]=p.variants[0]||""; if(!qty[p.id]) qty[p.id]=1; });
+  g.innerHTML=CATALOG.map(p=>{
+    const v=selV[p.id], s=getStock(p.id,v), oos=s<=0;
+    return `
+<div class="card${oos?" oos":""}" id="card-${p.id}">
+  <div class="cimg" style="background:${p.bg}">${p.img}</div>
+  <div class="cbody">
+    <p class="pname">${p.name}</p><p class="psub">${p.sub}</p>
+    ${p.detail?`<div class="pdet">${p.detail.split('\n').map(l=>`<span>${l}</span>`).join("")}</div>`:""}
+    <p class="pprice">฿${p.price.toLocaleString()}</p>
+    ${p.variants.length?`<div class="vars" id="vars-${p.id}">${p.variants.map(vv=>{const vs=getStock(p.id,vv);return`<button class="vbtn${vv===v?" active":""}"${vs<=0?" disabled":""} onclick="selVar('${p.id}','${vv}',this)">${vv}${vs<=0?" (หมด)":""}</button>`;}).join("")}</div>`:""}
+    <div id="stag-${p.id}">${stag(s)}</div>
+    ${!oos?`<div class="qrow"><span class="qlbl">จำนวน</span><div class="qctl"><button class="qb" onclick="chQ('${p.id}',-1)">−</button><span class="qn" id="q-${p.id}">1</span><button class="qb" onclick="chQ('${p.id}',1,${s})">+</button></div></div>`:""}
+    ${oos?`<div class="oos-btn">🚫 สินค้าหมด</div>`:`<button class="add-btn" id="ab-${p.id}" onclick="addCart('${p.id}')">🛒 เพิ่มในตะกร้า</button>`}
+  </div>
+</div>`}).join("");
+}
+
+function selVar(pid,v,btn){
+  selV[pid]=v;
+  btn.closest('.vars').querySelectorAll('.vbtn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const s=getStock(pid,v), oos=s<=0;
+  document.getElementById('stag-'+pid).innerHTML=stag(s);
+  document.getElementById('card-'+pid).classList.toggle('oos',oos);
+  const card=document.getElementById('card-'+pid);
+  const old=card.querySelector('.add-btn,.oos-btn');
+  if(old) old.outerHTML=oos?`<div class="oos-btn">🚫 สินค้าหมด</div>`:`<button class="add-btn" id="ab-${pid}" onclick="addCart('${pid}')">🛒 เพิ่มในตะกร้า</button>`;
+  const qrow=card.querySelector('.qrow');
+  if(oos&&qrow) qrow.remove();
+  else if(!oos&&!card.querySelector('.qrow')){
+    const obtn=card.querySelector('.add-btn');
+    if(obtn) obtn.insertAdjacentHTML('beforebegin',`<div class="qrow"><span class="qlbl">จำนวน</span><div class="qctl"><button class="qb" onclick="chQ('${pid}',-1)">−</button><span class="qn" id="q-${pid}">${qty[pid]}</span><button class="qb" onclick="chQ('${pid}',1,${s})">+</button></div></div>`);
+  }
+}
+function chQ(pid,d,max=99){
+  qty[pid]=Math.min(Math.max(1,(qty[pid]||1)+d),max);
+  const el=document.getElementById('q-'+pid);
+  if(el) el.textContent=qty[pid];
+}
+function addCart(pid){
+  const p=CATALOG.find(x=>x.id===pid), v=selV[pid]||"";
+  const s=getStock(pid,v);
+  if(s<=0){showToast("สินค้าหมดแล้วค่ะ");return;}
+  const q=qty[pid]||1, key=pid+(v?"-"+v:"");
+  const inCart=cart.filter(c=>c.key===key).reduce((a,c)=>a+c.qty,0);
+  if(inCart+q>s){showToast(`เหลือสินค้าแค่ ${s} ชิ้นค่ะ`);return;}
+  const ex=cart.find(c=>c.key===key);
+  if(ex) ex.qty+=q; else cart.push({key,pid,name:p.name,variant:v,qty:q,price:p.price});
+  bumpBadge();
+  const btn=document.getElementById('ab-'+pid);
+  if(btn){btn.textContent="✅ เพิ่มแล้ว!";btn.style.background="#2d7a2d";setTimeout(()=>{btn.innerHTML="🛒 เพิ่มในตะกร้า";btn.style.background="";},1400);}
+  showToast(`เพิ่ม "${p.name}" ในตะกร้าแล้วค่ะ`);
+}
+function bumpBadge(){
+  const n=cart.reduce((s,c)=>s+c.qty,0), el=document.getElementById('badge');
+  el.textContent=n; el.classList.add('bump'); setTimeout(()=>el.classList.remove('bump'),200);
+}
+
+/* ── CART ── */
+function showCart(){renderCart();showPage('cart');}
+function renderCart(){
+  const list=document.getElementById('cart-list'), summ=document.getElementById('cart-summ');
+  if(!cart.length){list.innerHTML=`<div class="cempty">🛒 ตะกร้าว่างเปล่าค่ะ<br><br><small>กลับไปเลือกสินค้าก่อนนะคะ</small></div>`;summ.innerHTML="";return;}
+  list.innerHTML=cart.map((c,i)=>`
+<div class="ci">
+  <div class="ci-info">
+    <div class="ci-name">${c.name}${c.variant?" ("+c.variant+")":""}</div>
+    <div class="ci-sub">฿${c.price} × ${c.qty}</div>
+    <div class="ci-qty">
+      <button class="qb" onclick="cqty(${i},-1)" style="width:28px;height:28px">−</button>
+      <span class="qn">${c.qty}</span>
+      <button class="qb" onclick="cqty(${i},1)" style="width:28px;height:28px">+</button>
+    </div>
+  </div>
+  <div class="ci-price">฿${(c.price*c.qty).toLocaleString()}</div>
+  <button class="ci-rm" onclick="rmItem(${i})">✕</button>
+</div>`).join("");
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0), ship=sub>=500?0:50, tot=sub+ship;
+  summ.innerHTML=`<div class="csumm">
+  <div class="srow"><span>ยอดรวมสินค้า</span><span>฿${sub.toLocaleString()}</span></div>
+  <div class="srow"><span>ค่าส่ง</span><span>${ship===0?"ฟรี":"฿"+ship}</span></div>
+  ${ship>0?`<div style="font-size:11px;color:var(--mu);margin-top:-4px">สั่ง ฿500 ขึ้นไป ส่งฟรี</div>`:""}
+  <div class="stotal"><span>รวมทั้งหมด</span><span>฿${tot.toLocaleString()}</span></div>
+  <button class="cobtn" onclick="goCheckout()">✅ ดำเนินการสั่งซื้อ</button>
+</div>`;
+}
+function cqty(i,d){const c=cart[i];cart[i].qty=Math.min(Math.max(1,c.qty+d),getStock(c.pid,c.variant));bumpBadge();renderCart();}
+function rmItem(i){cart.splice(i,1);bumpBadge();renderCart();}
+
+/* ── CHECKOUT ── */
+function goCheckout(){
+  if(!cart.length){showToast("กรุณาเพิ่มสินค้าก่อนค่ะ");return;}
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0), ship=sub>=500?0:50, tot=sub+ship;
+  document.getElementById('payamt').textContent="฿"+tot.toLocaleString();
+  document.getElementById('co-summ').innerHTML=
+    cart.map(c=>`<div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:.5px solid var(--g2)"><span>${c.name}${c.variant?" ("+c.variant+")":""} × ${c.qty}</span><span style="font-weight:600">฿${(c.price*c.qty).toLocaleString()}</span></div>`).join("")+
+    `<div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;border-bottom:.5px solid var(--g2)"><span>ค่าส่ง</span><span>${ship===0?"ฟรี":"฿"+ship}</span></div>`+
+    `<div style="display:flex;justify-content:space-between;font-size:16px;font-weight:600;padding:10px 0 0;color:var(--red)"><span>รวมทั้งหมด</span><span>฿${tot.toLocaleString()}</span></div>`;
+  showPage('checkout');
+}
+function handleSlip(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    slip64=e.target.result;
+    const img=document.getElementById('slipimg');img.src=slip64;img.style.display='block';
+    document.getElementById('sliplbl').textContent='✅ อัปโหลดสลิปแล้ว — คลิกเพื่อเปลี่ยน';
+    document.getElementById('slipz').classList.add('has');
+  };r.readAsDataURL(f);
+}
+async function submitOrder(){
+  const name=document.getElementById('fn').value.trim();
+  const email=document.getElementById('fe').value.trim();
+  const addr=document.getElementById('fa').value.trim();
+  if(!name){showToast("กรุณากรอกชื่อ-นามสกุลค่ะ");return;}
+  if(!email||!email.includes('@')){showToast("กรุณากรอกอีเมลให้ถูกต้องค่ะ");return;}
+  if(!addr){showToast("กรุณากรอกที่อยู่จัดส่งค่ะ");return;}
+  if(!slip64){showToast("กรุณาอัปโหลดสลิปก่อนค่ะ");return;}
+  const sub=cart.reduce((s,c)=>s+c.price*c.qty,0),ship=sub>=500?0:50,tot=sub+ship;
+  const oid=genOid();
+  const payload={action:"submitOrder",orderId:oid,name,email,
+    phone:document.getElementById('fp').value.trim(),
+    address:addr,note:document.getElementById('fnote').value.trim(),
+    items:cart.map(c=>({name:c.name,variant:c.variant,qty:c.qty,price:c.price,subtotal:c.price*c.qty,pid:c.pid})),
+    subtotal:sub,shipping:ship,total:tot,slipBase64:slip64,
+    timestamp:new Date().toLocaleString('th-TH',{timeZone:'Asia/Bangkok'})};
+  setOv(true,"กำลังส่งออเดอร์...");
+  try{await fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify(payload)});}catch(e){console.warn(e);}
+  setOv(false);
+  document.getElementById('soid').textContent=oid;
+  document.getElementById('semail').textContent="ระบบส่ง email ยืนยันไปที่ "+email+" แล้วค่ะ";
+  cart=[];slip64="";bumpBadge();
+  await loadStock(true);
+  showPage('success');
+}
+function genOid(){const d=new Date(),p=n=>String(n).padStart(2,'0');return`ORD-${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${Math.floor(Math.random()*900)+100}`;}
+function backHome(){
+  ['fn','fe','fp','fa','fnote'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('slipimg').style.display='none';
+  document.getElementById('sliplbl').textContent='📎 แตะหรือคลิกเพื่อเลือกรูปสลิป';
+  document.getElementById('slipz').classList.remove('has');
+  showPage('shop');
+}
+/* ── UTIL ── */
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById('page-'+id).classList.add('active');window.scrollTo(0,0);}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+function setOv(on,m=''){document.getElementById('overlay').classList.toggle('show',on);if(m)document.getElementById('ovmsg').textContent=m;}
+
+loadStock();
+setInterval(()=>loadStock(true),120000);
+</script>
+</body>
+</html>
